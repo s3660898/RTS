@@ -15,3 +15,8 @@
 !ps1
 !ps2
 !xs
+
+# and the shared header directory
+!include
+!include/*.h
+!include/*.c
