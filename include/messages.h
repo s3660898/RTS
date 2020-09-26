@@ -1,6 +1,8 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
+#include "intersection.h"
+
 /*just a test string for an example of the shared header*/
 #define MESSAGE_STRING "Hello there from the included header"
 
@@ -22,46 +24,8 @@ enum message_type{
 
 };
 
-/*enum of the different possible intersection states*/
-enum intersection_state{
-
-  /*north-south straight*/
-  INTERSECTION_STATE_NSS_G,
-  INTERSECTION_STATE_NSS_Y,
-  INTERSECTION_STATE_NSS_R,
-
-  /*north-south turn*/
-  INTERSECTION_STATE_NST_G,
-  INTERSECTION_STATE_NST_Y,
-  INTERSECTION_STATE_NST_R,
-
-  /*east-west straight*/
-  INTERSECTION_STATE_EWS_G,
-  INTERSECTION_STATE_EWS_Y,
-  INTERSECTION_STATE_EWS_R,
-
-  /*east-west turn*/
-  INTERSECTION_STATE_EWT_G,
-  INTERSECTION_STATE_EWT_Y,
-  INTERSECTION_STATE_EWT_R
-};
-
 struct message_data_intersection_state{
   enum intersection_state i_state;
-};
-
-/*different possible intersection light states*/
-enum light_state{
-  LIGHT_RED,
-  LIGHT_YELLOW,
-  LIGHT_GREEN
-};
-
-enum road_direction{
-  ROAD_NORTH,
-  ROAD_EAST,
-  ROAD_SOUTH,
-  ROAD_WEST
 };
 
 /*the union for the message's data*/

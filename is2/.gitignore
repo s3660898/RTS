@@ -11,6 +11,8 @@ local.properties
 .recommenders
 build/
 
+!src
+
 # External tool builders
 .externalToolBuilders/
 
