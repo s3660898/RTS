@@ -3,31 +3,43 @@
 
 # but the controllers & sensors
 !cc
+!cc/*
 !cc/src/*
 
 !ic1
+!ic1/*
 !ic1/src/*
 !ic2
+!ic2/*
 !ic2/src/*
 !pc1
+!pc1/*
 !pc1/src/*
 !pc2
+!pc2/*
 !pc2/src/*
 !xc
+!xc/*
 !xc/src/*
 
 !is1
+!is1/*
 !is1/src/*
 !is2
+!is2/*
 !is2/src/*
 !ps1
+!ps1/*
 !ps1/src/*
 !ps2
+!ps2/*
 !ps2/src/*
 !xs
+!xs/*
 !xs/src/*
 
 # and the shared header directory
 !include
+!include/*
 !include/*.h
 !include/*.c
