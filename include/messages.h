@@ -17,11 +17,20 @@ enum message_type{
   MESSAGE_PEDESTRIAN_LIGHT_CHANGE   = 2,
   MESSAGE_BOOMGATE_CHANGE           = 3,
 
-  /*senor -> local controller messages*/
-  MESSAGE_SENSOR_PEDESTRIAN         = 4,
-  MESSAGE_SENSOR_CAR                = 5,
-  MESSAGE_SENSOR_TRAIN              = 6
+  /*intersection sensor to intersection controller messages*/
+  MESSAGE_SENSOR_INTERSECTION_NSS   = 4,  /*a vehicle wants to go north or south straight*/
+  MESSAGE_SENSOR_INTERSECTION_NST   = 5,  /*a vehicle wants to go north or south, right hand turning*/
+  MESSAGE_SENSOR_INTERSECTION_EWS   = 6,  /*a vehicle wants to go east or west straight*/
+  MESSAGE_SENSOR_INTERSECTION_EWT   = 7,  /*a vehicle wants to go east or west, right hand turning*/
 
+  /*pedestrian sensor to pedestrian controller messages*/
+  MESSAGE_SENSOR_PEDESTRIAN_NORTH   = 8,
+  MESSAGE_SENSOR_PEDESTRIAN_EAST    = 9,
+  MESSAGE_SENSOR_PEDESTRIAN_SOUTH   = 10,
+  MESSAGE_SENSOR_PEDESTRIAN_WEST    = 11,
+
+  /*train sensor to train controller messages*/
+  MESSAGE_SENSOR_TRAIN              = 12
 };
 
 struct message_data_intersection_state{
