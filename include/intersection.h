@@ -25,6 +25,39 @@ enum intersection_state{
   INTERSECTION_STATE_EWT_R
 };
 
+static inline const char *intersection_state_string(enum intersection_state is){
+  switch(is){
+    case INTERSECTION_STATE_NSS_G:
+      return "INTERSECTION_STATE_NSS_G";
+    case INTERSECTION_STATE_NSS_Y:
+      return "INTERSECTION_STATE_NSS_Y";
+    case INTERSECTION_STATE_NSS_R:
+      return "INTERSECTION_STATE_NSS_R";
+
+    case INTERSECTION_STATE_NST_G:
+      return "INTERSECTION_STATE_NST_G";
+    case INTERSECTION_STATE_NST_Y:
+      return "INTERSECTION_STATE_NST_Y";
+    case INTERSECTION_STATE_NST_R:
+      return "INTERSECTION_STATE_NST_R";
+
+    case INTERSECTION_STATE_EWS_G:
+      return "INTERSECTION_STATE_EWS_G";
+    case INTERSECTION_STATE_EWS_Y:
+      return "INTERSECTION_STATE_EWS_Y";
+    case INTERSECTION_STATE_EWS_R:
+      return "INTERSECTION_STATE_EWS_R";
+
+    case INTERSECTION_STATE_EWT_G:
+      return "INTERSECTION_STATE_EWT_G";
+    case INTERSECTION_STATE_EWT_Y:
+      return "INTERSECTION_STATE_EWT_Y";
+    case INTERSECTION_STATE_EWT_R:
+      return "INTERSECTION_STATE_EWT_R";
+  }
+  return NULL;
+}
+
 /*the possible states for a single light*/
 enum traffic_light_state{
   LIGHT_GREEN,
@@ -52,7 +85,7 @@ struct intersection{
   struct road_lights road_west;
 };
 
-void intersection_init(struct intersection *i){
+static inline void intersection_init(struct intersection *i){
 
   /*setting the initial state*/
   i->state = INTERSECTION_STATE_NSS_G;
