@@ -2,36 +2,69 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/iofunc.h>
+#include <sys/dispatch.h>
 #include <errno.h>
+
+#include "messages.h"
 
 #include "server.h"
 
+#define ATTACH_POINT "cc"
+
 int server_init(struct server *s){
-  /*getting pid*/
-  s->pid = getpid();
 
-  /*creating channel*/
-  if((s->chid = ChannelCreate(_NTO_CHF_DISCONNECT)) < 1){
-    puts("failed to create channel");
+  /*creating global name*/
+  name_attach_t *attach;
+  if((attach = name_attach(NULL, ATTACH_POINT, 0)) == NULL){
+    puts("failed to attach name");
     return 1;
   }
 
-  /*debug displaying pid and chid*/
-  printf(
-    " server pid: %d\n"
-    "server chid: %d\n",
-    s->pid,
-    s->chid
-  );
+  /*recieving message loop*/
+  unsigned running = 1;
+  while(running){
+    struct message msg;
 
-  /*writing pid and chid to file for client*/
-  FILE *ofp;
-  if((ofp = fopen("/tmp/major_project/cc_server.info", "wb")) == NULL){
-    puts("failed to open server.info file!");
-    return 1;
+    int rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), NULL);
+
+    /*MsgRecieve error*/
+    if(rcvid < 0){
+      puts("MsgRecieve error");
+    }
+
+    /*MsgRecieve pulse recieved*/
+    else if(rcvid == 0){
+      /*TODO, does nothing for now*/
+    }
+
+    /*MsgRecieved actual message recieved*/
+    else{
+
+      /*a global name service connect request*/
+      if(msg.pulse.type == _IO_CONNECT){
+        MsgReply(rcvid, EOK, NULL, 0);
+      }
+
+      /*rejecting other I/O messages*/
+      else if(msg.pulse.type > _IO_BASE && msg.pulse.type <= _IO_MAX){
+        ;
+      }
+
+      else{
+        if(msg.type == MESSAGE_INTERSECTION_STATE_CHANGE){
+
+          /*preparing reply*/
+          struct message reply;
+          reply.pulse.type = 0x01;
+          reply.pulse.subtype = 0x00;
+          reply.type = MESSAGE_REPLY_OK;
+
+          MsgReply(rcvid, EOK, &reply, sizeof(struct message));
+        }
+      }
+    }
+
   }
-  fprintf(ofp, "%d\n%d\n", s->pid, s->chid);
-  fclose(ofp);
 
   return 0;
 }

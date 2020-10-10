@@ -1,4 +1,4 @@
-ARTIFACT = cc
+ARTIFACT = test_client
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
 PLATFORM ?= x86_64
@@ -24,7 +24,6 @@ INCLUDES += -I../include
 
 #LIBS += -L/path/to/my/lib/$(PLATFORM)/usr/lib -lmylib
 #LIBS += -L../mylib/$(OUTPUT_DIR) -lmylib
-LIBS += -lncurses
 
 #Compiler flags for build profiles
 CCFLAGS_release += -O2
@@ -47,7 +46,7 @@ DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
 rwildcard = $(wildcard $(addprefix $1/*.,$2)) $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2))
 
 #Source list
-SRCS = $(call rwildcard, src, c) $(call rwildcard, ../include, c)
+SRCS = $(call rwildcard, src, c)
 
 #Object files list
 OBJS = $(addprefix $(OUTPUT_DIR)/,$(addsuffix .o, $(basename $(SRCS))))
@@ -71,6 +70,3 @@ rebuild: clean all
 
 #Inclusion of dependencies (object files to source and includes)
 -include $(OBJS:%.o=%.d)
-
-test:
-	echo $(SRCS)

@@ -38,6 +38,10 @@
 !xs/*
 !xs/src/*
 
+!test_client
+!test_client/*
+!test_client/src/*
+
 # and the shared header directory
 !include
 !include/*
