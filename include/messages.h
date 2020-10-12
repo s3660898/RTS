@@ -18,10 +18,18 @@ enum message_type{
   MESSAGE_REPLY_OK,
   MESSAGE_REPLY_FAIL,
 
+  /*local controller mode changes*/
+  MESSAGE_SET_MODE_FIXED,
+  MESSAGE_SET_MODE_SENSOR,
+  MESSAGE_SET_MODE_MANUAL,
+
   /*state (light or actual state) change messages*/
-  MESSAGE_INTERSECTION_STATE_CHANGE,
-  MESSAGE_PEDESTRIAN_LIGHT_CHANGE,
-  MESSAGE_BOOMGATE_CHANGE,
+  MESSAGE_INTERSECTION_STATE_CHANGE_IC1,
+  MESSAGE_INTERSECTION_STATE_CHANGE_IC2,
+  MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC1,
+  MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC2,
+  MESSAGE_BOOMGATE_GREEN,
+  MESSAGE_BOOMGATE_RED,
 
   /*intersection sensor to intersection controller messages*/
   MESSAGE_SENSOR_INTERSECTION_NSS,  /*a vehicle wants to go north or south straight*/
@@ -39,9 +47,64 @@ enum message_type{
   MESSAGE_SENSOR_TRAIN
 };
 
+static inline const char *message_type_string(enum message_type mt){
+  switch(mt){
+    case MESSAGE_REPLY_OK:
+      return "MESSAGE_REPLY_OK";
+    case MESSAGE_REPLY_FAIL:
+      return "MESSAGE_REPLY_FAIL";
+
+    case MESSAGE_SET_MODE_FIXED:
+      return "MESSAGE_SET_MODE_FIXED";
+    case MESSAGE_SET_MODE_SENSOR:
+      return "MESSAGE_SET_MODE_SENSOR";
+    case MESSAGE_SET_MODE_MANUAL:
+      return "MESSAGE_SET_MODE_MANUAL";
+
+    case MESSAGE_INTERSECTION_STATE_CHANGE_IC1:
+      return "MESSAGE_INTERSECTION_STATE_CHANGE_IC1";
+    case MESSAGE_INTERSECTION_STATE_CHANGE_IC2:
+      return "MESSAGE_INTERSECTION_STATE_CHANGE_IC2";
+    case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC1:
+      return "MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC1";
+    case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC2:
+      return "MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC2";
+    case MESSAGE_BOOMGATE_GREEN:
+      return "MESSAGE_BOOMGATE_GREEN";
+    case MESSAGE_BOOMGATE_RED:
+      return "MESSAGE_BOOMGATE_RED";
+
+
+    case MESSAGE_SENSOR_INTERSECTION_NSS:
+      return "MESSAGE_SENSOR_INTERSECTION_NSS";
+    case MESSAGE_SENSOR_INTERSECTION_NST:
+      return "MESSAGE_SENSOR_INTERSECTION_NST";
+    case MESSAGE_SENSOR_INTERSECTION_EWS:
+      return "MESSAGE_SENSOR_INTERSECTION_EWS";
+    case MESSAGE_SENSOR_INTERSECTION_EWT:
+      return "MESSAGE_SENSOR_INTERSECTION_EWT";
+
+    case MESSAGE_SENSOR_PEDESTRIAN_NORTH:
+      return "MESSAGE_SENSOR_PEDESTRIAN_NORTH";
+    case MESSAGE_SENSOR_PEDESTRIAN_EAST:
+      return "MESSAGE_SENSOR_PEDESTRIAN_EAST";
+    case MESSAGE_SENSOR_PEDESTRIAN_SOUTH:
+      return "MESSAGE_SENSOR_PEDESTRIAN_SOUTH";
+    case MESSAGE_SENSOR_PEDESTRIAN_WEST:
+      return "INTERSECTION_STATE_EWS_Y";
+
+    case MESSAGE_SENSOR_TRAIN:
+      return "MESSAGE_SENSOR_TRAIN";
+
+    default:
+        return "N.A";
+  }
+}
+
 /*the union for the message's data*/
 union message_data{
   struct intersection isection;
+  enum intersection_state isection_state;
 };
 
 struct message{

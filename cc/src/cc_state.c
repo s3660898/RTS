@@ -3,12 +3,21 @@
 
 #include "cc_state.h"
 
-void intersection_shared_init(struct intersection_shared *is){
-  pthread_mutex_init(&is->mutex, NULL);
-  intersection_init(&is->i);
-}
-
 void cc_state_init(struct cc_state *ccs){
-  intersection_shared_init(&ccs->i1);
-  intersection_shared_init(&ccs->i2);
+  pthread_mutex_init(&ccs->mutex, NULL);
+
+  ccs->i1_time = 0;
+  intersection_init(&ccs->i1);
+
+  ccs->i2_time = 0;
+  intersection_init(&ccs->i2);
+
+  ccs->xc_time = 0;
+  ccs->xc.state = TRAIN_CROSSING_GREEN;
+
+  ccs->p1_time = 0;
+  pedestrian_crossings_init(&ccs->p1);
+
+  ccs->p2_time = 0;
+  pedestrian_crossings_init(&ccs->p2);
 }

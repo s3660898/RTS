@@ -10,14 +10,8 @@
 #include "cc_state.h"
 
 int main(void) {
-  struct server s;
+  pthread_t server_thread;
   struct cc_state ccs;
-
-  /*initialising the server structure*/
-  if(server_init(&s)){
-    puts("server failed to init!");
-    return 1;
-  }
 
   /*initialising internal intersection state*/
   cc_state_init(&ccs);
@@ -25,15 +19,24 @@ int main(void) {
   /*initiailising the ncurses gui*/
   gui_init();
 
+  /*initialising the server structure*/
+  pthread_create(&server_thread, NULL, server_init, &ccs);
+
   /*drawing the gui*/
-  gui_solve(&ccs);
-  getch();
+  while(1){
+    gui_solve(&ccs);
+  }
+
+  /*waiting for the server thread to join*/
+  pthread_join(server_thread, NULL);
 
   /*closing the IPC server*/
+#if 0
   if(server_destroy(&s)){
     puts("failed to close server!");
     return 1;
   }
+#endif
 
   puts("exiting normally!");
   return EXIT_SUCCESS;
