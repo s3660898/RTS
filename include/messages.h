@@ -5,6 +5,7 @@
 #include <sys/neutrino.h>
 
 #include "intersection.h"
+#include "pedestrian.h"
 
 /*just a test string for an example of the shared header*/
 #define MESSAGE_STRING "Hello there from the included header"
@@ -105,6 +106,7 @@ static inline const char *message_type_string(enum message_type mt){
 union message_data{
   struct intersection isection;
   enum intersection_state isection_state;
+  struct pedestrian_crossings pcrossings;
 };
 
 struct message{

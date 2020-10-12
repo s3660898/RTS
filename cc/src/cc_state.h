@@ -19,8 +19,8 @@ struct cc_state{
   clock_t p1_time;
   struct pedestrian_crossings p1;  /*contains the state of the pedestrian crossing*/
 
-  clock_t xc_time;
-  struct train_crossing xc;
+  clock_t x_time;
+  struct train_crossing x;
 
   /*intersection i2 related*/
   clock_t i2_time;

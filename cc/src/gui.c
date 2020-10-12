@@ -135,15 +135,15 @@ void gui_draw_train_crossing(int y, int x, struct train_crossing *tc, const char
 
   switch(tc->state){
     case TRAIN_CROSSING_GREEN:
-      attron(COLOR_PAIR(3));
-      mvprintw(y+1, x+35, "%10s", "VEHICLES");
-      attroff(COLOR_PAIR(3));
-      break;
-
-    case TRAIN_CROSSING_RED:
       attron(COLOR_PAIR(1));
       mvprintw(y+1, x+35, "%10s", "VEHICLES");
       attroff(COLOR_PAIR(1));
+      break;
+
+    case TRAIN_CROSSING_RED:
+      attron(COLOR_PAIR(3));
+      mvprintw(y+1, x+35, "%10s", "VEHICLES");
+      attroff(COLOR_PAIR(3));
       break;
   }
 }
@@ -182,7 +182,7 @@ void gui_solve(struct cc_state *ccs){
 
   gui_draw_intersection(1, 0, &ccs->i1, "IC1", ccs->i1_time);
   gui_draw_pedestrian_crossings(8, 0, &ccs->p1, "PC1", ccs->p1_time);
-  gui_draw_train_crossing(11, 0, &ccs->xc, "XC", ccs->xc_time);
+  gui_draw_train_crossing(11, 0, &ccs->x, "XC", ccs->x_time);
   gui_draw_intersection(14, 0, &ccs->i2, "IC2", ccs->i2_time);
   gui_draw_pedestrian_crossings(21, 0, &ccs->p2, "PC2", ccs->p2_time);
 

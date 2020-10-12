@@ -57,45 +57,50 @@ void *server_init(void *data){
       /*a project-related message*/
       else{
         struct message reply;
+        int send_reply_ok = 1;
 
         switch(msg.type){
           case MESSAGE_INTERSECTION_STATE_CHANGE_IC1:
             /*updating state by copying message data*/
             pthread_mutex_lock(&ccs->mutex);
-
-            memcpy(&ccs->i1, &msg.data, sizeof(struct intersection));
             ccs->i1_time = clock();
-
+            memcpy(&ccs->i1, &msg.data, sizeof(struct intersection));
             pthread_mutex_unlock(&ccs->mutex);
-
-            /*preparing reply*/
-            reply.pulse.type = 0x01;
-            reply.pulse.subtype = 0x00;
-            reply.type = MESSAGE_REPLY_OK;
-
-            MsgReply(rcvid, EOK, &reply, sizeof(struct message));
             break;
 
           case MESSAGE_INTERSECTION_STATE_CHANGE_IC2:
             pthread_mutex_lock(&ccs->mutex);
-
+            ccs->i2_time = clock();
             memcpy(&ccs->i2, &msg.data, sizeof(struct intersection));
-            ccs->i2_time = 0;
-
             pthread_mutex_unlock(&ccs->mutex);
-
-            /*preparing reply*/
-            reply.pulse.type = 0x01;
-            reply.pulse.subtype = 0x00;
-            reply.type = MESSAGE_REPLY_OK;
-
-            MsgReply(rcvid, EOK, &reply, sizeof(struct message));
             break;
 
           case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC1:
+            pthread_mutex_lock(&ccs->mutex);
+            ccs->p2_time = clock();
+            memcpy(&ccs->p1, &msg.data.pcrossings, sizeof(struct pedestrian_crossings));
+            pthread_mutex_unlock(&ccs->mutex);
             break;
 
           case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC2:
+            pthread_mutex_lock(&ccs->mutex);
+            ccs->p1_time = clock();
+            memcpy(&ccs->p2, &msg.data.pcrossings, sizeof(struct pedestrian_crossings));
+            pthread_mutex_unlock(&ccs->mutex);
+            break;
+
+          case MESSAGE_BOOMGATE_RED:
+            pthread_mutex_lock(&ccs->mutex);
+            ccs->x_time = clock();
+            ccs->x.state = TRAIN_CROSSING_RED;
+            pthread_mutex_unlock(&ccs->mutex);
+            break;
+
+          case MESSAGE_BOOMGATE_GREEN:
+            pthread_mutex_lock(&ccs->mutex);
+            ccs->x_time = clock();
+            ccs->x.state = TRAIN_CROSSING_GREEN;
+            pthread_mutex_unlock(&ccs->mutex);
             break;
 
           default:
@@ -103,6 +108,17 @@ void *server_init(void *data){
             reply.pulse.subtype = 0x00;
             reply.type = MESSAGE_REPLY_FAIL;
             MsgReply(rcvid, EOK, &reply, sizeof(struct message));
+
+            send_reply_ok = 0;
+        }
+
+        if(send_reply_ok){
+          /*preparing reply*/
+          reply.pulse.type = 0x01;
+          reply.pulse.subtype = 0x00;
+          reply.type = MESSAGE_REPLY_OK;
+
+          MsgReply(rcvid, EOK, &reply, sizeof(struct message));
         }
       }
     }

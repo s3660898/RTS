@@ -12,8 +12,8 @@ void cc_state_init(struct cc_state *ccs){
   ccs->i2_time = 0;
   intersection_init(&ccs->i2);
 
-  ccs->xc_time = 0;
-  ccs->xc.state = TRAIN_CROSSING_GREEN;
+  ccs->x_time = 0;
+  ccs->x.state = TRAIN_CROSSING_GREEN;
 
   ccs->p1_time = 0;
   pedestrian_crossings_init(&ccs->p1);
