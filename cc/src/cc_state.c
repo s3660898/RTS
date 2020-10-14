@@ -20,4 +20,9 @@ void cc_state_init(struct cc_state *ccs){
 
   ccs->p2_time = 0;
   pedestrian_crossings_init(&ccs->p2);
+
+  ccs->mode = MODE_FIXED;
+
+  client_info_init(&ccs->ci_ic1, ATTACH_POINT_IC1);
+  client_info_init(&ccs->ci_ic2, ATTACH_POINT_IC2);
 }

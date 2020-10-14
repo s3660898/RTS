@@ -11,6 +11,7 @@ void gui_init(void){
   initscr();
   cbreak();
   curs_set(0);
+  nodelay(stdscr, TRUE);
 
   /*initiailising terminal colours*/
   if(has_colors() == FALSE)
@@ -62,24 +63,51 @@ void gui_draw_lights(unsigned y, unsigned x, struct road_lights *rl, const char 
   gui_draw_light(y, x+55, rl->right, "RIGHT");
 }
 
-void gui_draw_intersection(unsigned y, unsigned x, struct intersection *isection, const char *name, clock_t time){
+void gui_draw_intersection(
+  unsigned y, unsigned x,
+  struct intersection *isection,
+  const char *name,
+  clock_t time,
+  struct client_info *ci
+){
 
   float time_since_message = (float)(clock() - time)/CLOCKS_PER_SEC;
 
-  /*printing the time since the last message*/
-  if(time_since_message >= 5.0f)
-    attron(COLOR_PAIR(3));
+  mvprintw(y, x, "%4s, last message received:", name);
 
+  /*printing the time since the last message*/
+  if(time_since_message >= 5.0f){
+    attron(COLOR_PAIR(3));
+    mvprintw(y, x+35, "%4.2f", time_since_message);
+    attroff(COLOR_PAIR(3));
+  }else{
+    mvprintw(y, x+35, "%4.2f", time_since_message);
+  }
+
+  mvprintw(y, x+41, ", connection to server:");
+
+  if(ci->connection_state == CONNECTION_STATE_DISCONNECTED){
+    attron(COLOR_PAIR(3));
+    mvprintw(y, x+66, "%s", connection_state_string(ci->connection_state));
+    attroff(COLOR_PAIR(3));
+  }else{
+    attron(COLOR_PAIR(1));
+    mvprintw(y, x+66, "%s", connection_state_string(ci->connection_state));
+    attroff(COLOR_PAIR(1));
+  }
+
+#if 0
   mvprintw(
     y, x,
-    "%4s, %25s: %3.2f",
+    "%4s, %25s: %4.2f, %25s: %s%s",
     name,
-    "secs since last message",
-    time_since_message
+    "last message received",
+    time_since_message,
+    "connection to server",
+    connection_state_string(ci->connection_state),
+    ""
   );
-
-  if(time_since_message >= 5.0f)
-    attroff(COLOR_PAIR(3));
+#endif
 
   /*printing the current state*/
   mvprintw(
@@ -102,6 +130,12 @@ void gui_draw_crossing(int y, int x, enum pedestrian_crossing_state pcs, const c
   switch(pcs){
     case PEDESTRIAN_CROSSING_RED:
       attron(COLOR_PAIR(3));
+      mvprintw(y, x, "%10s", name);
+      attroff(COLOR_PAIR(3));
+      break;
+
+    case PEDESTRIAN_CROSSING_YELLOW:
+      attron(COLOR_PAIR(2));
       mvprintw(y, x, "%10s", name);
       attroff(COLOR_PAIR(3));
       break;
@@ -174,17 +208,46 @@ void gui_draw_pedestrian_crossings(int y, int x, struct pedestrian_crossings *p,
 
 }
 
-void gui_solve(struct cc_state *ccs){
+void gui_draw_mode(int y, int x, enum mode m){
+  mvprintw(0, 0, "current operating mode: %s", mode_string(m));
+}
 
-  erase();
+void gui_solve(struct cc_state *ccs){
 
   pthread_mutex_lock(&ccs->mutex);
 
-  gui_draw_intersection(1, 0, &ccs->i1, "IC1", ccs->i1_time);
-  gui_draw_pedestrian_crossings(8, 0, &ccs->p1, "PC1", ccs->p1_time);
-  gui_draw_train_crossing(11, 0, &ccs->x, "XC", ccs->x_time);
-  gui_draw_intersection(14, 0, &ccs->i2, "IC2", ccs->i2_time);
-  gui_draw_pedestrian_crossings(21, 0, &ccs->p2, "PC2", ccs->p2_time);
+  /*getting character c for this cycle*/
+  int c;
+  if((c = getch()) != ERR){
+
+    switch(c){
+      case '1':
+        ccs->mode = MODE_FIXED;
+        /*TODO: queue sending messages*/
+        break;
+      case '2':
+        ccs->mode = MODE_SENSOR;
+        /*TODO: queue sending messages*/
+        break;
+      case '3':
+        ccs->mode = MODE_MANUAL;
+        /*TODO: queue sending messages*/
+        break;
+    }
+  }
+
+  /*clearing the screen for drawing*/
+  erase();
+
+  /*drawing the current operating mode*/
+  gui_draw_mode(0, 0, ccs->mode);
+
+  /*drawing the status gui*/
+  gui_draw_intersection(2, 0, &ccs->i1, "IC1", ccs->i1_time, &ccs->ci_ic1);
+  gui_draw_pedestrian_crossings(9, 0, &ccs->p1, "PC1", ccs->p1_time);
+  gui_draw_train_crossing(12, 0, &ccs->x, "XC", ccs->x_time);
+  gui_draw_intersection(15, 0, &ccs->i2, "IC2", ccs->i2_time, &ccs->ci_ic2);
+  gui_draw_pedestrian_crossings(22, 0, &ccs->p2, "PC2", ccs->p2_time);
 
   pthread_mutex_unlock(&ccs->mutex);
 

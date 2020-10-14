@@ -8,9 +8,10 @@
 #include "intersection.h"
 #include "gui.h"
 #include "cc_state.h"
+#include "clients.h"
 
 int main(void) {
-  pthread_t server_thread;
+  pthread_t t_server, t_client_ic1, t_client_ic2;
   struct cc_state ccs;
 
   /*initialising internal intersection state*/
@@ -19,8 +20,20 @@ int main(void) {
   /*initiailising the ncurses gui*/
   gui_init();
 
+  /*initialising the clients for ic1, ic2*/
+  struct client_init_data cid_ic1 = {
+    .ccs = &ccs,
+    .ci  = &ccs.ci_ic1
+  };
+  struct client_init_data cid_ic2 = {
+    .ccs = &ccs,
+    .ci  = &ccs.ci_ic2
+  };
+  pthread_create(&t_client_ic1, NULL, client_init, &cid_ic1);
+  pthread_create(&t_client_ic2, NULL, client_init, &cid_ic2);
+
   /*initialising the server structure*/
-  pthread_create(&server_thread, NULL, server_init, &ccs);
+  pthread_create(&t_server, NULL, server_init, &ccs);
 
   /*drawing the gui*/
   while(1){
@@ -28,7 +41,11 @@ int main(void) {
   }
 
   /*waiting for the server thread to join*/
-  pthread_join(server_thread, NULL);
+  pthread_join(t_server, NULL);
+
+  /*joining client threads*/
+  pthread_join(t_client_ic1, NULL);
+  pthread_join(t_client_ic2, NULL);
 
   /*closing the IPC server*/
 #if 0

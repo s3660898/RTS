@@ -6,8 +6,10 @@
 #include "intersection.h"
 #include "pedestrian.h"
 #include "train.h"
+#include "mode.h"
+#include "clients.h"
 
-/*a thread safe intersection state struct*/
+struct client_info;
 
 /*the main struct containing state for the CC*/
 struct cc_state{
@@ -29,8 +31,15 @@ struct cc_state{
   clock_t p2_time;
   struct pedestrian_crossings p2;  /*contains the state of the pedestrian crossing*/
 
-  /*multithreading related*/
+  /*the operating mode of the system*/
+  enum mode mode;
+
+  /*state multithreading related*/
   pthread_mutex_t mutex;
+
+  /*connection information for where cc is client*/
+  struct client_info ci_ic1;
+  struct client_info ci_ic2;
 };
 
 void cc_state_init(struct cc_state *ccs);
