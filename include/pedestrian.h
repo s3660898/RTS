@@ -3,6 +3,7 @@
 
 enum pedestrian_crossing_state{
   PEDESTRIAN_CROSSING_RED,
+  PEDESTRIAN_CROSSING_YELLOW,
   PEDESTRIAN_CROSSING_GREEN
 };
 
