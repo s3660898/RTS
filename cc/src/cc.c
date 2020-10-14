@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
 #include <ncurses.h>
 
 #include "messages.h"
@@ -10,9 +12,26 @@
 #include "cc_state.h"
 #include "clients.h"
 
+void signal_handler(int signo){
+  if(signo == SIGINT){
+
+    /*ncurses cleanup*/
+    endwin();
+
+    puts("exiting via sigint!");
+    exit(0);
+  }
+}
+
 int main(void) {
   pthread_t t_server, t_client_ic1, t_client_ic2;
   struct cc_state ccs;
+
+  /*sigint callback*/
+  if(signal(SIGINT, signal_handler) == SIG_ERR){
+    puts("signal handler refused");
+    return 1;
+  }
 
   /*initialising internal intersection state*/
   cc_state_init(&ccs);
