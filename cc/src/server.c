@@ -77,14 +77,14 @@ void *server_init(void *data){
 
           case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC1:
             pthread_mutex_lock(&ccs->mutex);
-            ccs->p2_time = clock();
+            ccs->p1_time = clock();
             memcpy(&ccs->p1, &msg.data.pcrossings, sizeof(struct pedestrian_crossings));
             pthread_mutex_unlock(&ccs->mutex);
             break;
 
           case MESSAGE_PEDESTRIAN_LIGHT_CHANGE_PC2:
             pthread_mutex_lock(&ccs->mutex);
-            ccs->p1_time = clock();
+            ccs->p2_time = clock();
             memcpy(&ccs->p2, &msg.data.pcrossings, sizeof(struct pedestrian_crossings));
             pthread_mutex_unlock(&ccs->mutex);
             break;
