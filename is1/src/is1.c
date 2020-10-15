@@ -9,7 +9,7 @@
 #include <sys/dispatch.h>
 
 const char* Name = "is1";
-const char* ATTACH_POINT = "/net/VM_x86_Target02/dev/name/local/ic1";
+const char* ATTACH_POINT = "/net/i1/dev/name/local/ic1";
 
 int main(int argc, char *argv[])
 {

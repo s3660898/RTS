@@ -14,10 +14,10 @@
 const int TIMER_INTERVAL = 5;
 
 #define LOCAL_ATTACH_POINT "xc"
-#define ATTACH_POINT_CC "/net/VM_x86_Target02/dev/name/local/cc" // For Server
-#define ATTACH_POINT_IC1 "/net/VM_x86_Target02/dev/name/local/ic1" // For IC1
-#define ATTACH_POINT_IC2 "/net/VM_x86_Target02/dev/name/local/ic2" // For IC2
-#define ATTACH_POINT_XS1 "/net/VM_x86_Target01/dev/name/local/xs" // For XS1
+#define ATTACH_POINT_CC "/net/cc/dev/name/local/cc" // For Server
+#define ATTACH_POINT_IC1 "/net/i1/dev/name/local/ic1" // For IC1
+#define ATTACH_POINT_IC2 "/net/i2/dev/name/local/ic2" // For IC2
+#define ATTACH_POINT_XS1 "/net/x/dev/name/local/xs" // For XS1
 
 int timer_ch_id;
 
@@ -270,7 +270,7 @@ int check_all_connections()
 	int xs1_conn = name_open(ATTACH_POINT_XS1, 0);
 	//printf("xs1_conn = %d\n", xs1_conn);
 	//sleep(1);
-	if((ic1_conn != -1 || ic2_conn != -1) && xs1_conn != -1) // Change to && if we need both ic1 and ic2 connected
+	if((ic1_conn != -1 || ic2_conn != -1) || xs1_conn != -1) // Change to && if we need both ic1 and ic2 connected
 		return 1;
 	else return -1;
 }
