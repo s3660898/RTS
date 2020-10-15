@@ -216,7 +216,7 @@ void gui_solve_manual_state(struct cc_state *ccs, char c){
 
   switch(c){
     case 'j':
-      if(ccs->state_cursor < INTERSECTION_STATE_EWT_R-1)
+      if(ccs->state_cursor < INTERSECTION_STATE_EWT_R)
         ccs->state_cursor++;
       break;
     case 'k':
@@ -250,7 +250,7 @@ void gui_draw_manual_state(int y, int x, struct cc_state *ccs){
   mvprintw(y+1, 0, "%s", intersection_state_string(ccs->target_state_ic1));
 
   unsigned i;
-  for(i = 0; i < INTERSECTION_STATE_EWT_R; i++){
+  for(i = 0; i <= INTERSECTION_STATE_EWT_R; i++){
 
     if(ccs->state_cursor == i && ccs->state_cursor_controller == 0){
       attron(COLOR_PAIR(1));
@@ -263,7 +263,7 @@ void gui_draw_manual_state(int y, int x, struct cc_state *ccs){
 
   mvprintw(y+0, 35, "IC2 target state:");
   mvprintw(y+1, 35, "%s", intersection_state_string(ccs->target_state_ic2));
-  for(i = 0; i < INTERSECTION_STATE_EWT_R; i++){
+  for(i = 0; i <= INTERSECTION_STATE_EWT_R; i++){
 
     if(ccs->state_cursor == i && ccs->state_cursor_controller == 1){
       attron(COLOR_PAIR(1));
