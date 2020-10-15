@@ -16,7 +16,7 @@ static inline const char *connection_state_string(enum connection_state cs){
     case CONNECTION_STATE_CONNECTED:
       return "CONNECTED";
     case CONNECTION_STATE_DISCONNECTED:
-      return "DISCONNECTED";
+      return "DISCONNECTED (ATTEMPTING RECONNECT)";
   }
   return NULL;
 }
@@ -32,7 +32,7 @@ struct client_info{
   enum connection_state connection_state;
 
   /*message for message sending*/
-  struct message message;
+  struct message msg;
   int send_message;
 
   /*structure mutex*/
@@ -49,5 +49,7 @@ struct client_init_data{
 };
 
 void *client_init(void *data);
+
+void client_send_message(struct client_info *ci, enum message_type mt, void *data, size_t n);
 
 #endif

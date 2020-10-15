@@ -45,7 +45,10 @@ enum message_type{
   MESSAGE_SENSOR_PEDESTRIAN_WEST,
 
   /*train sensor to train controller messages*/
-  MESSAGE_SENSOR_TRAIN
+  MESSAGE_SENSOR_TRAIN,
+
+  /*cc -> icx setting intersection state manually*/
+  MESSAGE_SET_STATE_MANUAL
 };
 
 static inline const char *message_type_string(enum message_type mt){
@@ -97,8 +100,11 @@ static inline const char *message_type_string(enum message_type mt){
     case MESSAGE_SENSOR_TRAIN:
       return "MESSAGE_SENSOR_TRAIN";
 
+    case MESSAGE_SET_STATE_MANUAL:
+      return "MESSAGE_SET_STATE_MANUAL";
+
     default:
-        return "N.A";
+      return "N.A";
   }
 }
 

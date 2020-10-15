@@ -223,15 +223,18 @@ void gui_solve(struct cc_state *ccs){
     switch(c){
       case '1':
         ccs->mode = MODE_FIXED;
-        /*TODO: queue sending messages*/
+        client_send_message(&ccs->ci_ic1, MESSAGE_SET_MODE_FIXED, NULL, 0);
+        client_send_message(&ccs->ci_ic2, MESSAGE_SET_MODE_FIXED, NULL, 0);
         break;
       case '2':
         ccs->mode = MODE_SENSOR;
-        /*TODO: queue sending messages*/
+        client_send_message(&ccs->ci_ic1, MESSAGE_SET_MODE_SENSOR, NULL, 0);
+        client_send_message(&ccs->ci_ic2, MESSAGE_SET_MODE_SENSOR, NULL, 0);
         break;
       case '3':
         ccs->mode = MODE_MANUAL;
-        /*TODO: queue sending messages*/
+        client_send_message(&ccs->ci_ic1, MESSAGE_SET_MODE_MANUAL, NULL, 0);
+        client_send_message(&ccs->ci_ic2, MESSAGE_SET_MODE_MANUAL, NULL, 0);
         break;
     }
   }
