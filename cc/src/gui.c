@@ -297,6 +297,8 @@ void gui_solve(struct cc_state *ccs){
         break;
       case '3':
         ccs->mode = MODE_MANUAL;
+        ccs->target_state_ic1 = -1;
+        ccs->target_state_ic2 = -1;
         client_send_message(&ccs->ci_ic1, MESSAGE_SET_MODE_MANUAL, NULL, 0);
         client_send_message(&ccs->ci_ic2, MESSAGE_SET_MODE_MANUAL, NULL, 0);
         break;
