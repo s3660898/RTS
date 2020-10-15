@@ -10,6 +10,7 @@
 #include <sys/neutrino.h>
 
 
+
 #include "messages.h"
 #include "pedestrian.h"
 
@@ -27,15 +28,21 @@ struct pedestrian_crossing_shared{
   struct pedestrian_crossings pc;
   int passCCFlag;
   int passICFlag;
+  int sensorFlag;
   pthread_mutex_t mutex;
 };
 struct pedestrian_crossing_shared pcs;
 
 
 
-unsigned int sensorState = 0;
+unsigned int sensorStateNorth = 0;
+unsigned int sensorStateEast = 0;
+unsigned int sensorStateWest = 0;
+unsigned int sensorStateSouth = 0;
 /*TODO change back to 0*/
-unsigned int interState = 3;
+unsigned int interState = 0;
+
+
 
 
 
@@ -169,7 +176,7 @@ void *th_cc_passing (void *data){
 
 }
 
-//Thread for msg passing to IC1
+//Thread for msg passing to IC2
 
 void *th_ic2_passing (void *data){
 
@@ -212,9 +219,8 @@ void *th_ic2_passing (void *data){
 
 		if(connected && pcs.passICFlag == 1){
 
-
-
-		switch(sensorState){
+		pthread_mutex_lock(&pcs.mutex);
+		switch(pcs.sensorFlag){
 
 				case 1:
 					msg.type = MESSAGE_SENSOR_PEDESTRIAN_NORTH;
@@ -232,6 +238,9 @@ void *th_ic2_passing (void *data){
 					msg.type = MESSAGE_SENSOR_PEDESTRIAN_SOUTH;
 					break;
 				}
+
+		  pcs.sensorFlag = 0;
+		  pthread_mutex_unlock(&pcs.mutex);
 
 		if(MsgSend(server_coid, &msg, sizeof(struct message), &reply, sizeof(struct message)) == -1){
       connected = 0;
@@ -263,6 +272,7 @@ void *th_ic2_passing (void *data){
 	return 0;
 
 }
+
 
 
 
@@ -350,9 +360,10 @@ int main(void){
 	    	    	  case MESSAGE_SENSOR_PEDESTRIAN_NORTH:
 
 
-	    	    		  sensorState = 1;
+	    	    		  sensorStateNorth = 1;
 	    	    		  pthread_mutex_lock(&pcs.mutex);
 	    	    		  pcs.passICFlag = 1;
+	    	    		  pcs.sensorFlag = 1;
 	    	    		  pthread_mutex_unlock(&pcs.mutex);
 
 
@@ -377,6 +388,7 @@ int main(void){
 	    	    			  pcs.pc.north = PEDESTRIAN_CROSSING_RED;
 	    	    			  pcs.passCCFlag = 1;
 	    	    			  pthread_mutex_unlock(&pcs.mutex);
+	    	    			  sensorStateNorth = 0;
 
 
 
@@ -392,9 +404,10 @@ int main(void){
 
 	    	    	  case MESSAGE_SENSOR_PEDESTRIAN_EAST:
 
-	    	    		  sensorState = 2;
+	    	    		  sensorStateEast = 1;
 	    	    		  pthread_mutex_lock(&pcs.mutex);
 	    	    		  pcs.passICFlag = 1;
+	    	    		  pcs.sensorFlag = 2;
 	    	    		  pthread_mutex_unlock(&pcs.mutex);
 
 	    	    		  if (interState == 1){
@@ -419,6 +432,7 @@ int main(void){
 	    	    			  pcs.pc.east = PEDESTRIAN_CROSSING_RED;
 	    	    			  pcs.passCCFlag = 1;
 	    	    			  pthread_mutex_unlock(&pcs.mutex);
+	    	    			  sensorStateEast = 0;
 
 
 	    	    		  }
@@ -433,9 +447,10 @@ int main(void){
 
 	    	    	  case MESSAGE_SENSOR_PEDESTRIAN_WEST:
 
-	    	    		  sensorState = 3;
+	    	    		  sensorStateWest = 1;
 	    	    		  pthread_mutex_lock(&pcs.mutex);
 	    	    		  pcs.passICFlag = 1;
+	    	    		  pcs.sensorFlag = 3;
 	    	    		  pthread_mutex_unlock(&pcs.mutex);
 
 	    	    		  if (interState == 1){
@@ -460,6 +475,7 @@ int main(void){
 	    	    			  pcs.pc.west = PEDESTRIAN_CROSSING_RED;
 	    	    			  pcs.passCCFlag = 1;
 	    	    			  pthread_mutex_unlock(&pcs.mutex);
+	    	    			  sensorStateWest = 0;
 
 
 	    	    		  }
@@ -473,9 +489,10 @@ int main(void){
 
 	    	    	  case MESSAGE_SENSOR_PEDESTRIAN_SOUTH:
 
-	    	    		  sensorState = 4;
+	    	    		  sensorStateSouth = 1;
 	    	    		  pthread_mutex_lock(&pcs.mutex);
 	    	    		  pcs.passICFlag = 1;
+	    	    		  pcs.sensorFlag = 4;
 	    	    		  pthread_mutex_unlock(&pcs.mutex);
 
 
@@ -501,6 +518,7 @@ int main(void){
 	    	    			  pcs.pc.south = PEDESTRIAN_CROSSING_RED;
 	    	    			  pcs.passCCFlag = 1;
 	    	    			  pthread_mutex_unlock(&pcs.mutex);
+	    	    			  sensorStateSouth = 0;
 
 
 	    	    		  }
@@ -520,7 +538,39 @@ int main(void){
 
 	    	    		  case INTERSECTION_STATE_NSS_G:
 	    	    			  interState = 1;
-	    	    			  if(sensorState == 2){
+	    	    			  if(sensorStateEast == 1 && sensorStateWest == 1){
+
+	    	    				  pthread_mutex_lock(&pcs.mutex);
+	    	    				  pcs.pc.east = PEDESTRIAN_CROSSING_GREEN;
+	    	    				  pcs.pc.west = PEDESTRIAN_CROSSING_GREEN;
+	    	    				  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+
+		    	    			  run_timer(xcs.timer);
+
+		    	    			  pthread_mutex_lock(&pcs.mutex);
+		    	    			  pcs.pc.east = PEDESTRIAN_CROSSING_YELLOW;
+		    	    			  pcs.pc.west = PEDESTRIAN_CROSSING_YELLOW;
+		    	    			  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+
+		    	    			  run_timer(xcs.timer);
+
+		    	    			  pthread_mutex_lock(&pcs.mutex);
+		    	    			  pcs.pc.east = PEDESTRIAN_CROSSING_RED;
+		    	    			  pcs.pc.west = PEDESTRIAN_CROSSING_RED;
+		    	    			  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+		    	    			  sensorStateEast = 0;
+		    	    			  sensorStateWest = 0;
+
+
+
+
+
+	    	    			  }
+
+	    	    			  else if(sensorStateEast == 1){
 
 	    	    				  pthread_mutex_lock(&pcs.mutex);
 	    	    				  pcs.pc.east = PEDESTRIAN_CROSSING_GREEN;
@@ -540,12 +590,16 @@ int main(void){
 		    	    			  pcs.pc.east = PEDESTRIAN_CROSSING_RED;
 		    	    			  pcs.passCCFlag = 1;
 		    	    			  pthread_mutex_unlock(&pcs.mutex);
+		    	    			  sensorStateEast = 0;
+
+
 
 
 
 	    	    			  }
 
-	    	    			  if(sensorState == 3){
+
+	    	    			  else if(sensorStateWest == 1){
 	    	    				  pthread_mutex_lock(&pcs.mutex);
 	    	    				  pcs.pc.west = PEDESTRIAN_CROSSING_GREEN;
 	    	    				  pcs.passCCFlag = 1;
@@ -566,10 +620,11 @@ int main(void){
 	    	    				  pcs.pc.west = PEDESTRIAN_CROSSING_RED;
 	    	    				  pcs.passCCFlag = 1;
 		    	    			  pthread_mutex_unlock(&pcs.mutex);
-
-
+		    	    			  sensorStateWest = 0;
 
 	    	    			  }
+
+
 
 		    	              /*preparing reply*/
 		    	              reply.pulse.type = 0x01;
@@ -578,6 +633,7 @@ int main(void){
 
 		    	              MsgReply(rcvid, EOK, &reply, sizeof(struct message));
 		    	              break;
+
 
 
 	    	    		  case INTERSECTION_STATE_NST_G:
@@ -596,7 +652,36 @@ int main(void){
 	    	    		  case INTERSECTION_STATE_EWS_G:
 	    	    			  interState = 3;
 
-	    	    			  if(sensorState == 1){
+	    	    			  if(sensorStateNorth == 1 && sensorStateSouth == 1){
+	    	    				  pthread_mutex_lock(&pcs.mutex);
+	    	    				  pcs.pc.north = PEDESTRIAN_CROSSING_GREEN;
+	    	    				  pcs.pc.south = PEDESTRIAN_CROSSING_GREEN;
+	    	    				  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+
+
+		    	    			  run_timer(xcs.timer);
+
+	    	    				  pthread_mutex_lock(&pcs.mutex);
+	    	    				  pcs.pc.north = PEDESTRIAN_CROSSING_YELLOW;
+	    	    				  pcs.pc.south = PEDESTRIAN_CROSSING_YELLOW;
+	    	    				  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+
+
+		    	    			  run_timer(xcs.timer);
+
+	    	    				  pthread_mutex_lock(&pcs.mutex);
+	    	    				  pcs.pc.north = PEDESTRIAN_CROSSING_RED;
+	    	    				  pcs.pc.south = PEDESTRIAN_CROSSING_RED;
+	    	    				  pcs.passCCFlag = 1;
+		    	    			  pthread_mutex_unlock(&pcs.mutex);
+		    	    			  sensorStateNorth = 0;
+		    	    			  sensorStateSouth = 0;
+
+
+	    	    			  }
+	    	    			  else if(sensorStateNorth == 1){
 	    	    				  pthread_mutex_lock(&pcs.mutex);
 	    	    				  pcs.pc.north = PEDESTRIAN_CROSSING_GREEN;
 	    	    				  pcs.passCCFlag = 1;
@@ -617,11 +702,12 @@ int main(void){
 	    	    				  pcs.pc.north = PEDESTRIAN_CROSSING_RED;
 	    	    				  pcs.passCCFlag = 1;
 		    	    			  pthread_mutex_unlock(&pcs.mutex);
+		    	    			  sensorStateNorth = 0;
 
 
 	    	    			  }
 
-	    	    			  if(sensorState == 4){
+	    	    			  else  if(sensorStateSouth == 1){
 	    	    				  pthread_mutex_lock(&pcs.mutex);
 	    	    				  pcs.pc.south = PEDESTRIAN_CROSSING_GREEN;
 	    	    				  pcs.passCCFlag = 1;
@@ -640,6 +726,7 @@ int main(void){
 	    	    				  pcs.pc.south = PEDESTRIAN_CROSSING_RED;
 	    	    				  pcs.passCCFlag = 1;
 		    	    			  pthread_mutex_unlock(&pcs.mutex);
+		    	    			  sensorStateSouth = 0;
 
 
 	    	    			  }
@@ -664,7 +751,10 @@ int main(void){
 		    	              MsgReply(rcvid, EOK, &reply, sizeof(struct message));
 		    	              break;
 
+
+
                   default:
+                	  interState = 0;
                     /*preparing reply*/
                     reply.pulse.type = 0x01;
                     reply.pulse.subtype = 0x00;
@@ -674,7 +764,7 @@ int main(void){
 
 	    	    		  }
 
-
+	    	    	  }
 
 
 
@@ -685,7 +775,7 @@ int main(void){
 
 
 	    }
-	    }
+
 
 	    printf("Server running\n");
 
@@ -695,7 +785,6 @@ int main(void){
 
 
 }
-
 
 
 
