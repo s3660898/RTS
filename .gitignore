@@ -42,6 +42,10 @@
 !test_client/*
 !test_client/src/*
 
+!test_server
+!test_server/*
+!test_server/src/*
+
 # and the shared header directory
 !include
 !include/*
