@@ -40,6 +40,12 @@ struct cc_state{
   /*connection information for where cc is client*/
   struct client_info ci_ic1;
   struct client_info ci_ic2;
+
+  /*manual state selection related*/
+  int state_cursor;
+  int state_cursor_controller;
+  enum intersection_state target_state_ic1;
+  enum intersection_state target_state_ic2;
 };
 
 void cc_state_init(struct cc_state *ccs);

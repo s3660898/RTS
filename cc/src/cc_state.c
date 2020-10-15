@@ -25,4 +25,9 @@ void cc_state_init(struct cc_state *ccs){
 
   client_info_init(&ccs->ci_ic1, ATTACH_POINT_IC1);
   client_info_init(&ccs->ci_ic2, ATTACH_POINT_IC2);
+
+  ccs->state_cursor = 0;
+  ccs->state_cursor_controller = 0;
+  ccs->target_state_ic1 = -1;
+  ccs->target_state_ic2 = -1;
 }

@@ -212,6 +212,69 @@ void gui_draw_mode(int y, int x, enum mode m){
   mvprintw(0, 0, "current operating mode: %s", mode_string(m));
 }
 
+void gui_solve_manual_state(struct cc_state *ccs, char c){
+
+  switch(c){
+    case 'j':
+      if(ccs->state_cursor < INTERSECTION_STATE_EWT_R-1)
+        ccs->state_cursor++;
+      break;
+    case 'k':
+      if(ccs->state_cursor > 0)
+        ccs->state_cursor--;
+      break;
+    case 'l':
+      if(ccs->state_cursor_controller == 0)
+        ccs->state_cursor_controller = 1;
+      break;
+    case 'h':
+      if(ccs->state_cursor_controller == 1)
+        ccs->state_cursor_controller = 0;
+      break;
+    case '\n':
+      if(ccs->state_cursor_controller == 0){
+        ccs->target_state_ic1 = ccs->state_cursor;
+        client_send_message(&ccs->ci_ic1, MESSAGE_SET_STATE_MANUAL, &ccs->target_state_ic1, sizeof(enum intersection_state));
+      }
+      else if(ccs->state_cursor_controller == 1){
+        ccs->target_state_ic2 = ccs->state_cursor;
+        client_send_message(&ccs->ci_ic2, MESSAGE_SET_STATE_MANUAL, &ccs->target_state_ic2, sizeof(enum intersection_state));
+      }
+  }
+
+}
+
+void gui_draw_manual_state(int y, int x, struct cc_state *ccs){
+  /*printing the states*/
+  mvprintw(y, 0, "IC1 target state:");
+  mvprintw(y+1, 0, "%s", intersection_state_string(ccs->target_state_ic1));
+
+  unsigned i;
+  for(i = 0; i < INTERSECTION_STATE_EWT_R; i++){
+
+    if(ccs->state_cursor == i && ccs->state_cursor_controller == 0){
+      attron(COLOR_PAIR(1));
+      mvprintw(y+i+3, 0, "%s", intersection_state_string((enum intersection_state)i));
+      attroff(COLOR_PAIR(1));
+    }else{
+      mvprintw(y+i+3, 0, "%s", intersection_state_string((enum intersection_state)i));
+    }
+  }
+
+  mvprintw(y+0, 35, "IC2 target state:");
+  mvprintw(y+1, 35, "%s", intersection_state_string(ccs->target_state_ic2));
+  for(i = 0; i < INTERSECTION_STATE_EWT_R; i++){
+
+    if(ccs->state_cursor == i && ccs->state_cursor_controller == 1){
+      attron(COLOR_PAIR(1));
+      mvprintw(y+i+3, 35, "%s", intersection_state_string((enum intersection_state)i));
+      attroff(COLOR_PAIR(1));
+    }else{
+      mvprintw(y+i+3, 35, "%s", intersection_state_string((enum intersection_state)i));
+    }
+  }
+}
+
 void gui_solve(struct cc_state *ccs){
 
   pthread_mutex_lock(&ccs->mutex);
@@ -220,6 +283,7 @@ void gui_solve(struct cc_state *ccs){
   int c;
   if((c = getch()) != ERR){
 
+    /*mode switching logic*/
     switch(c){
       case '1':
         ccs->mode = MODE_FIXED;
@@ -236,11 +300,20 @@ void gui_solve(struct cc_state *ccs){
         client_send_message(&ccs->ci_ic1, MESSAGE_SET_MODE_MANUAL, NULL, 0);
         client_send_message(&ccs->ci_ic2, MESSAGE_SET_MODE_MANUAL, NULL, 0);
         break;
+
     }
+
+    /*solving manual mode state selection*/
+    if(ccs->mode == MODE_MANUAL)
+      gui_solve_manual_state(ccs, c);
+
   }
 
   /*clearing the screen for drawing*/
   erase();
+
+  if(ccs->mode == MODE_MANUAL)
+    gui_draw_manual_state(30, 0, ccs);
 
   /*drawing the current operating mode*/
   gui_draw_mode(0, 0, ccs->mode);

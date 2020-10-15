@@ -3,7 +3,7 @@
 
 #include "messages.h"
 
-#define ATTACH_POINT_IC1 "/net/VM_x86_Target01/dev/name/local/ic1"
+#define ATTACH_POINT_IC1 "/net/VM_x86_Target01/dev/name/local/dummy"
 #define ATTACH_POINT_IC2 "/net/VM_x86_Target01/dev/name/local/ic2"
 
 enum connection_state{

@@ -93,7 +93,7 @@ void *client_init(void *data){
 void client_send_message(struct client_info *ci, enum message_type type, void *data, size_t n){
   pthread_mutex_lock(&ci->mutex);
 
-  memcpy(&ci->msg, data, n);
+  memcpy(&ci->msg.data, data, n);
   ci->msg.type = type;
   ci->send_message = 1;
 

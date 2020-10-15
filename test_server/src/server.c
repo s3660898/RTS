@@ -58,6 +58,9 @@ void *server_init(void *data){
 
         printf("message received, type: %s\n", message_type_string(msg.type));
 
+        if(msg.type == MESSAGE_SET_STATE_MANUAL)
+          printf("                 state: %s\n", intersection_state_string(msg.data.isection_state));
+
         /*preparing reply*/
         reply.pulse.type = 0x01;
         reply.pulse.subtype = 0x00;

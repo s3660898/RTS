@@ -55,7 +55,7 @@ static inline const char *intersection_state_string(enum intersection_state is){
     case INTERSECTION_STATE_EWT_R:
       return "INTERSECTION_STATE_EWT_R";
   }
-  return NULL;
+  return "NONE";
 }
 
 /*the possible states for a single light*/
